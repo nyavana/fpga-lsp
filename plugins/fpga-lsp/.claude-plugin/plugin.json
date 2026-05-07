@@ -1,0 +1,11 @@
+{
+  "name": "fpga-lsp",
+  "version": "1.0.0",
+  "description": "Verible + rust_hdl LSP wiring for SystemVerilog/Verilog/VHDL in Claude Code.",
+  "author": {
+    "name": "nyavana"
+  },
+  "homepage": "https://github.com/nyavana/fpga-lsp",
+  "license": "MIT",
+  "keywords": ["lsp", "systemverilog", "verilog", "vhdl", "fpga", "verible"]
+}

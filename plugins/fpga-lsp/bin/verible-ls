@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+# Claude Code launches this as the LSP `command`. Resolves verible-verilog-ls
+# at exec time (PATH -> plugin cache -> lazy install on Linux x64) and execs it
+# with project-aware args. Resolution at exec time avoids depending on PATH
+# mutations propagated from SessionStart hooks.
+set -euo pipefail
+
+# Fallback for CLAUDE_PLUGIN_DATA when run outside a Claude Code session.
+: "${CLAUDE_PLUGIN_DATA:=${XDG_DATA_HOME:-$HOME/.local/share}/claude-code/plugins/fpga-lsp}"
+
+# CLAUDE_PLUGIN_ROOT is set by Claude Code; fall back to the wrapper's own dir.
+PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
+
+# Claude Code spawns LSPs in the workspace cwd; CLAUDE_PROJECT_DIR is the
+# documented project root. Prefer it when set.
+WORKSPACE="${CLAUDE_PROJECT_DIR:-$PWD}"
+
+INSTALLER="${PLUGIN_ROOT}/scripts/install-verible.sh"
+GEN_FILELIST="${PLUGIN_ROOT}/scripts/gen-filelist.sh"
+
+resolve_bin() {
+  if command -v verible-verilog-ls >/dev/null 2>&1; then
+    command -v verible-verilog-ls
+    return 0
+  fi
+  if [ -x "${CLAUDE_PLUGIN_DATA}/bin/verible-verilog-ls" ]; then
+    printf '%s\n' "${CLAUDE_PLUGIN_DATA}/bin/verible-verilog-ls"
+    return 0
+  fi
+  return 1
+}
+
+BIN="$(resolve_bin || true)"
+
+if [ -z "$BIN" ] && [ "$(uname -s)" = "Linux" ] && [ "$(uname -m)" = "x86_64" ]; then
+  if [ -x "$INSTALLER" ]; then
+    "$INSTALLER" || true
+    BIN="$(resolve_bin || true)"
+  fi
+fi
+
+if [ -z "$BIN" ]; then
+  printf 'fpga-lsp: verible-verilog-ls not found on PATH or in %s/bin/. On Linux x64 the auto-installer should have run; check network. On macOS/Windows/Linux-arm64 install Verible manually -- see README of the fpga-lsp plugin.\n' \
+    "$CLAUDE_PLUGIN_DATA" >&2
+  exit 1
+fi
+
+FILELIST=""
+if [ -x "$GEN_FILELIST" ]; then
+  FILELIST="$("$GEN_FILELIST" "$WORKSPACE" 2>/dev/null || true)"
+fi
+
+if [ -n "$FILELIST" ]; then
+  exec "$BIN" --rules_config_search --file_list_path="$FILELIST"
+else
+  exec "$BIN" --rules_config_search
+fi

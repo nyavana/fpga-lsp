@@ -16,5 +16,10 @@ __pycache__/
 
 # Downloaded binaries / archives (filled in once scaffolding lands)
 bin/
+!plugins/*/bin/
+!plugins/*/bin/**
 *.tar.gz
 *.zip
+
+# Plugin-managed runtime data (created by install-verible.sh in CI)
+.claude-plugin-data/

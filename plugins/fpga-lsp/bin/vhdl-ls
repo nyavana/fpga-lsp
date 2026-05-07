@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Resolves vhdl_ls from PATH only. v1 does not auto-install rust_hdl.
+set -euo pipefail
+
+if BIN="$(command -v vhdl_ls 2>/dev/null)"; then
+  exec "$BIN" "$@"
+fi
+
+printf 'fpga-lsp: vhdl_ls not found on PATH. Install with: cargo install vhdl_ls. Then create vhdl_ls.toml at your VHDL project root (or set VHDL_LS_CONFIG) -- cargo install alone is not enough; standard libraries must be configured. See the fpga-lsp README for a vhdl_ls.toml template.\n' >&2
+exit 1

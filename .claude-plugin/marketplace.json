@@ -1,0 +1,15 @@
+{
+  "name": "fpga-lsp",
+  "description": "HDL language servers (Verible, rust_hdl) wired into Claude Code as a native LSP plugin for SystemVerilog, Verilog, and VHDL.",
+  "owner": {
+    "name": "nyavana"
+  },
+  "plugins": [
+    {
+      "name": "fpga-lsp",
+      "source": "./plugins/fpga-lsp",
+      "description": "Verible + rust_hdl LSP wiring for SystemVerilog/Verilog/VHDL in Claude Code.",
+      "version": "1.0.0"
+    }
+  ]
+}

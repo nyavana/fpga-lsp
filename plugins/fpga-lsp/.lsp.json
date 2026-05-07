@@ -1,0 +1,18 @@
+{
+  "verible": {
+    "command": "${CLAUDE_PLUGIN_ROOT}/bin/verible-ls",
+    "extensionToLanguage": {
+      ".sv": "systemverilog",
+      ".svh": "systemverilog",
+      ".v": "verilog",
+      ".vh": "verilog"
+    }
+  },
+  "vhdl_ls": {
+    "command": "${CLAUDE_PLUGIN_ROOT}/bin/vhdl-ls",
+    "extensionToLanguage": {
+      ".vhd": "vhdl",
+      ".vhdl": "vhdl"
+    }
+  }
+}
